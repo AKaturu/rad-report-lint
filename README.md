@@ -1,6 +1,6 @@
 # rad-report-lint
 
-[![CI](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml)
+[![CI](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
