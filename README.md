@@ -9,6 +9,8 @@
 
 `rad-report-lint` analyzes free-text radiology reports using 14 deterministic rules to identify common quality issues: contradictory laterality, normal/abnormal conflicts, modality mismatches, duplicated findings, missing comparison dates, empty impressions, recommendations without intervals, critical findings omitted from the impression, inconsistent measurements, ambiguous pronouns, excessive hedging, unexpanded abbreviations, template placeholders, and findings–impression contradictions.
 
+![rad-report-lint synthetic demo](docs/assets/demo.gif)
+
 ## Quick Start
 
 ```bash
@@ -32,6 +34,17 @@ rad-report-lint check report.txt
 # List all rules
 rad-report-lint rules
 ```
+
+## Demo Media
+
+The README demo uses a synthetic report scenario and deterministic lint output. To regenerate the GitHub assets:
+
+```bash
+python -m pip install -e ".[media]"
+python scripts/generate_demo_media.py
+```
+
+See [docs/DEMO_MEDIA.md](docs/DEMO_MEDIA.md) for the asset policy.
 
 ## Example
 

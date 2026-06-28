@@ -39,6 +39,12 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.10",
 ]
+media = [
+    "Pillow>=10",
+    "imageio>=2.34",
+    "imageio-ffmpeg>=0.5",
+    "numpy>=1.26",
+]
 
 [project.scripts]
 rad-report-lint = "rad_report_lint.cli:app"

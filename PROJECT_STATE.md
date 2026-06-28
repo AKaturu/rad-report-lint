@@ -36,6 +36,12 @@ A deterministic linter for radiology reports with 14 rules, CLI, and full CI.
 - MIT License
 - `rad-report-lint` CLI entry point
 
+## GitHub Presentation Update
+
+- Added reproducible synthetic demo media generation through `scripts/generate_demo_media.py`.
+- Added README demo GIF, demo regeneration commands, and demo asset policy documentation.
+- Added optional `media` dependencies for local asset regeneration.
+
 ## No Known Issues
 - All tests pass
 - No mypy errors
