@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 
 from rad_report_lint.models import (
@@ -118,6 +119,7 @@ def split_sections(text: str) -> dict[str, str]:
             try:
                 current_section = ReportSection(header.lower())
             except ValueError:
+                logging.warning("Unknown section header: %s", header)
                 current_section = None
             current_lines = []
             rest = m.group("rest") or ""
@@ -186,11 +188,17 @@ def extract_measurements(text: str) -> list[Measurement]:
             if lat_str:
                 lat = _LATERALITY_MAP.get(lat_str.strip().lower(), Laterality.unspecified)
 
+            try:
+                value_mm = float(m.group(1))
+            except ValueError:
+                logging.debug("Skipping malformed measurement value: %s", m.group(1))
+                continue
+
             measurements.append(
                 Measurement(
                     body_part=body,
                     laterality=lat,
-                    value_mm=float(m.group(1)),
+                    value_mm=value_mm,
                     text=stripped,
                 )
             )

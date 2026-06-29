@@ -20,14 +20,14 @@ class ContradictoryLaterality(Rule):
 
         for body, lats in body_lats.items():
             if Laterality.right in lats and Laterality.left in lats and Laterality.bilateral not in lats:
-                    issues.append(
-                        LintIssue(
-                            rule_name=self.name,
-                            severity=Severity.error,
-                            message=f"Contradictory laterality for '{body}': "
-                                    f"described as both right and left",
-                        )
+                issues.append(
+                    LintIssue(
+                        rule_name=self.name,
+                        severity=Severity.error,
+                        message=f"Contradictory laterality for '{body}': "
+                                f"described as both right and left",
                     )
+                )
         return issues
 
 

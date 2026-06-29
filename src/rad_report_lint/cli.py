@@ -12,6 +12,7 @@ from rad_report_lint.exporter import (
     print_rules_table,
 )
 from rad_report_lint.rules import default_registry
+from rad_report_lint.models import Severity
 from rad_report_lint.synthetic import generate_all_demo_reports, generate_demo_report
 
 app = typer.Typer(
@@ -127,7 +128,7 @@ def check(
     if issues:
         parsed, _ = engine.lint_with_report(text)
         print_lint_results(parsed, issues)
-        has_errors = any(i.severity.value == "error" for i in issues)
+        has_errors = any(i.severity == Severity.error for i in issues)
         raise typer.Exit(code=1 if has_errors else 0)
     else:
         console.print("[green]✓ No issues found![/green]")

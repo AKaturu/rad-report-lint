@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from rad_report_lint.models import LintIssue, ParsedReport, Severity
+from rad_report_lint.rules.base import Rule
 
 console = Console()
 
@@ -54,7 +55,7 @@ def export_json(issues: list[LintIssue]) -> str:
     return json.dumps(data, indent=2)
 
 
-def print_rules_table(rules: list) -> None:
+def print_rules_table(rules: list[Rule]) -> None:
     table = Table(title="Available Rules")
     table.add_column("Rule Name", style="cyan")
     table.add_column("Description")
