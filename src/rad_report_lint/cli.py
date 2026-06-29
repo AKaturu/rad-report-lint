@@ -11,8 +11,8 @@ from rad_report_lint.exporter import (
     print_lint_results,
     print_rules_table,
 )
-from rad_report_lint.rules import default_registry
 from rad_report_lint.models import Severity
+from rad_report_lint.rules import default_registry
 from rad_report_lint.synthetic import generate_all_demo_reports, generate_demo_report
 
 app = typer.Typer(
