@@ -1,22 +1,35 @@
-# rad-report-lint
+﻿# rad-report-lint
 
 [![CI](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AKaturu/rad-report-lint/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
 
-> **Validation status:** Software functionality has been tested using synthetic data. This project has not undergone clinical validation.
+**A deterministic linter for radiology reports â€” catch contradictions, inconsistencies, and quality gaps.**
 
-**A deterministic linter for radiology reports — catch contradictions, inconsistencies, and quality gaps.**
-
-`rad-report-lint` analyzes free-text radiology reports using 14 deterministic rules to identify common quality issues: contradictory laterality, normal/abnormal conflicts, modality mismatches, duplicated findings, missing comparison dates, empty impressions, recommendations without intervals, critical findings omitted from the impression, inconsistent measurements, ambiguous pronouns, excessive hedging, unexpanded abbreviations, template placeholders, and findings–impression contradictions.
+`rad-report-lint` analyzes free-text radiology reports using 14 deterministic rules to identify common quality issues: contradictory laterality, normal/abnormal conflicts, modality mismatches, duplicated findings, missing comparison dates, empty impressions, recommendations without intervals, critical findings omitted from the impression, inconsistent measurements, ambiguous pronouns, excessive hedging, unexpanded abbreviations, template placeholders, and findingsâ€“impression contradictions.
 
 ![rad-report-lint synthetic demo](docs/assets/demo.gif)
+
+## Evidence Status
+
+| Evidence | Status |
+|---|---|
+| Unit and integration tests | Complete |
+| Synthetic end-to-end evaluation | Complete |
+| Public-data evaluation | Not completed |
+| Independent expert review | Not completed |
+| Institutional validation | Not completed |
+| Prospective clinical validation | Not completed |
+
+This software is a research prototype and is not intended for independent clinical decision-making.
 
 ## Quick Start
 
 ```bash
-pip install rad-report-lint
+git clone https://github.com/AKaturu/rad-report-lint.git
+cd rad-report-lint
+python -m pip install -e .
 
 # Lint a report file
 rad-report-lint lint report.txt
@@ -59,7 +72,7 @@ IMPRESSION: No pulmonary nodule.
 **Output:**
 ```
 ERROR
-  • findings-impression-contradiction
+  â€¢ findings-impression-contradiction
     Findings mention abnormal 'lung' (right) but impression describes it as normal
 ```
 
@@ -87,29 +100,29 @@ ERROR
 Run `rad-report-lint demo --list` to see all scenarios, or `rad-report-lint demo <scenario>` to try one:
 
 ```
-normal                    — Clean report (few or no issues)
-contradictory-laterality  — Right vs left conflict
-normal-abnormal-conflict  — Same organ normal and abnormal
-missing-comparison-date   — Comparison without date
-empty-impression          — Missing impression
-recommendation-without-interval  — Follow-up without timeframe
-critical-omitted          — Critical finding not in impression
-hedging                   — Excessive hedging language
-placeholder               — Unfilled template placeholder
-findings-impression-contradiction  — Findings vs impression mismatch
-duplicated                — Verbatim duplicate findings
+normal                    â€” Clean report (few or no issues)
+contradictory-laterality  â€” Right vs left conflict
+normal-abnormal-conflict  â€” Same organ normal and abnormal
+missing-comparison-date   â€” Comparison without date
+empty-impression          â€” Missing impression
+recommendation-without-interval  â€” Follow-up without timeframe
+critical-omitted          â€” Critical finding not in impression
+hedging                   â€” Excessive hedging language
+placeholder               â€” Unfilled template placeholder
+findings-impression-contradiction  â€” Findings vs impression mismatch
+duplicated                â€” Verbatim duplicate findings
 ```
 
 ## Architecture
 
 The linter uses a deterministic, regex-based approach:
 
-1. **Parser** (`report_parser.py`) — Segments report into sections (FINDINGS, IMPRESSION, etc.), extracts body parts with laterality, detects normal/abnormal status, and extracts measurements
-2. **Rules** (`rules/`) — 14 standalone rule classes, each implementing a `check(report) -> list[LintIssue]` interface
-3. **Engine** (`engine.py`) — Runs all rules against a parsed report, sorts results by severity
-4. **Exporter** (`exporter.py`) — Formats results as Rich tables or JSON
-5. **CLI** (`cli.py`) — Typer interface with lint, check, demo, and rules commands
+1. **Parser** (`report_parser.py`) â€” Segments report into sections (FINDINGS, IMPRESSION, etc.), extracts body parts with laterality, detects normal/abnormal status, and extracts measurements
+2. **Rules** (`rules/`) â€” 14 standalone rule classes, each implementing a `check(report) -> list[LintIssue]` interface
+3. **Engine** (`engine.py`) â€” Runs all rules against a parsed report, sorts results by severity
+4. **Exporter** (`exporter.py`) â€” Formats results as Rich tables or JSON
+5. **CLI** (`cli.py`) â€” Typer interface with lint, check, demo, and rules commands
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT â€” see [LICENSE](LICENSE).
