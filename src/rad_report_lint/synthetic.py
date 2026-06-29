@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -58,30 +59,33 @@ _PRIOR_DATES = [
 ]
 
 
-def _build_report(
-    modality: str,
-    body: str,
-    laterality: str,
-    normal: bool,
-    include_comparison: bool,
-    include_interval: bool,
-    critical_omitted: bool,
-    hedging: int,
-    use_placeholder: bool,
-    contradictory_lat: bool,
-    conflict: bool,
-    duplicated_text: bool,
-) -> str:
-    lat = f"{laterality} " if laterality else ""
-    lat_for_body = f"{_pick(['right', 'left'])} " if contradictory_lat else lat
+@dataclass
+class SyntheticReportConfig:
+    modality: str = "CT"
+    body: str = "liver"
+    laterality: str = ""
+    normal: bool = False
+    include_comparison: bool = True
+    include_interval: bool = False
+    critical_omitted: bool = False
+    hedging: int = 0
+    use_placeholder: bool = False
+    contradictory_lat: bool = False
+    conflict: bool = False
+    duplicated_text: bool = False
+
+
+def _build_report(cfg: SyntheticReportConfig) -> str:
+    lat = f"{cfg.laterality} " if cfg.laterality else ""
+    lat_for_body = f"{_pick(['right', 'left'])} " if cfg.contradictory_lat else lat
 
     parts: list[str] = []
-    parts.append(f"EXAMINATION: {modality} {body.replace('_', ' ').title()}")
+    parts.append(f"EXAMINATION: {cfg.modality} {cfg.body.replace('_', ' ').title()}")
 
     comp = _pick(_COMPARISON)
-    if comp and include_comparison:
+    if comp and cfg.include_comparison:
         parts.append(f"COMPARISON: {comp} {_pick(_PRIOR_DATES)}.")
-    elif comp and not include_comparison:
+    elif comp and not cfg.include_comparison:
         parts.append("COMPARISON: Compared to prior examination.")
     else:
         parts.append("COMPARISON: None.")
@@ -90,12 +94,12 @@ def _build_report(
     parts.append("")
 
     findings: list[str] = []
-    if duplicated_text:
-        dup = f"The {lat}{body} demonstrates a {_pick(_MEASUREMENTS)} {_pick(_FINDING_TYPES)}."
+    if cfg.duplicated_text:
+        dup = f"The {lat}{cfg.body} demonstrates a {_pick(_MEASUREMENTS)} {_pick(_FINDING_TYPES)}."
         findings.extend([dup, dup])
-    elif normal and not conflict:
-        findings.append(_pick(_NORMAL_STATEMENTS).format(laterality=lat, body=body))
-    elif not normal and not conflict:
+    elif cfg.normal and not cfg.conflict:
+        findings.append(_pick(_NORMAL_STATEMENTS).format(laterality=lat, body=cfg.body))
+    elif not cfg.normal and not cfg.conflict:
         finding_text = _pick(_ABNORMAL_STATEMENTS)
         if "{size}" in finding_text:
             finding_text = finding_text.replace(
@@ -103,18 +107,18 @@ def _build_report(
             )
         findings.append(
             finding_text.format(
-                laterality=lat_for_body if contradictory_lat else lat,
-                body=body,
+                laterality=lat_for_body if cfg.contradictory_lat else lat,
+                body=cfg.body,
                 size=f"a {_pick(_MEASUREMENTS)}" if "{size}" not in finding_text else "",
                 measurement=_pick(_MEASUREMENTS),
                 finding_type=_pick(_FINDING_TYPES),
             )
         )
-    elif conflict:
+    elif cfg.conflict:
         findings.extend([
-            _pick(_NORMAL_STATEMENTS).format(laterality=lat, body=body),
+            _pick(_NORMAL_STATEMENTS).format(laterality=lat, body=cfg.body),
             _pick(_ABNORMAL_STATEMENTS).format(
-                laterality=lat, body=body,
+                laterality=lat, body=cfg.body,
                 size=f"a {_pick(_MEASUREMENTS)}",
                 measurement=_pick(_MEASUREMENTS),
                 finding_type=_pick(_FINDING_TYPES),
@@ -122,17 +126,17 @@ def _build_report(
         ])
 
     hedge = ""
-    if hedging > 0:
-        hedge_words = " ".join(_pick(_HEDGE_WORDS) for _ in range(hedging))
+    if cfg.hedging > 0:
+        hedge_words = " ".join(_pick(_HEDGE_WORDS) for _ in range(cfg.hedging))
         hedge = f" This {hedge_words} represents a {_pick(_FINDING_TYPES)}."
 
     rec = ""
-    if include_interval:
+    if cfg.include_interval:
         rec = f" Recommend follow-up in {_pick(['3', '6', '12'])} months."
-    elif not include_interval and not normal:
+    elif not cfg.include_interval and not cfg.normal:
         rec = " Recommend follow-up."
 
-    if use_placeholder:
+    if cfg.use_placeholder:
         findings.append("[___]")
 
     parts.append("FINDINGS:")
@@ -141,17 +145,17 @@ def _build_report(
     parts.append(rec)
     parts.append("")
 
-    if critical_omitted:
+    if cfg.critical_omitted:
         parts.append("IMPRESSION:")
         parts.append("No significant findings.")
-    elif contradictory_lat:
-        lat_opposite = "left" if laterality == "right" else "right"
+    elif cfg.contradictory_lat:
+        lat_opposite = "left" if cfg.laterality == "right" else "right"
         parts.append("IMPRESSION:")
         parts.append(
             f"There is a {_pick(_MEASUREMENTS)} {_pick(_FINDING_TYPES)} "
-            f"in the {lat_opposite} {body}."
+            f"in the {lat_opposite} {cfg.body}."
         )
-    elif normal:
+    elif cfg.normal:
         parts.append("IMPRESSION:")
         parts.append(_pick(_IMPRESSION_NORMAL))
     else:
@@ -159,7 +163,7 @@ def _build_report(
         parts.append(
             _pick(_IMPRESSION_ABNORMAL).format(
                 finding=_pick(_FINDING_TYPES).title(),
-                body=body,
+                body=cfg.body,
             )
         )
 
@@ -168,77 +172,58 @@ def _build_report(
 
 def generate_demo_report(scenario: str | None = None) -> str | None:
     scenarios = {
-        "normal": lambda: _build_report(
+        "normal": lambda: _build_report(SyntheticReportConfig(
             modality=_pick(_MODALITIES), body=_pick(_BODY_PARTS),
             laterality=_pick(_LATERALITY).strip(), normal=True,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
-        "contradictory-laterality": lambda: _build_report(
+        )),
+        "contradictory-laterality": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="lung",
             laterality="right", normal=False,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=True, conflict=False, duplicated_text=False,
-        ),
-        "normal-abnormal-conflict": lambda: _build_report(
+            contradictory_lat=True,
+        )),
+        "normal-abnormal-conflict": lambda: _build_report(SyntheticReportConfig(
             modality="MRI", body="liver",
             laterality="", normal=False,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=True, duplicated_text=False,
-        ),
-        "missing-comparison-date": lambda: _build_report(
+            conflict=True,
+        )),
+        "missing-comparison-date": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="brain",
             laterality="", normal=False,
-            include_comparison=False, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
+            include_comparison=False,
+        )),
         "empty-impression": lambda: "FINDINGS: Normal examination.\n\nIMPRESSION:\n",
-        "recommendation-without-interval": lambda: _build_report(
+        "recommendation-without-interval": lambda: _build_report(SyntheticReportConfig(
             modality="XR", body="chest",
             laterality="", normal=False,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
-        "critical-omitted": lambda: _build_report(
+        )),
+        "critical-omitted": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="lung",
             laterality="right", normal=False,
-            include_comparison=True, include_interval=True,
-            critical_omitted=True, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
-        "hedging": lambda: _build_report(
+            include_interval=True,
+            critical_omitted=True,
+        )),
+        "hedging": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="pancreas",
             laterality="", normal=False,
-            include_comparison=True, include_interval=True,
-            critical_omitted=False, hedging=3, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
-        "placeholder": lambda: _build_report(
+            include_interval=True,
+            hedging=3,
+        )),
+        "placeholder": lambda: _build_report(SyntheticReportConfig(
             modality="MRI", body="spine",
             laterality="", normal=True,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=True,
-            contradictory_lat=False, conflict=False, duplicated_text=False,
-        ),
-        "findings-impression-contradiction": lambda: _build_report(
+            use_placeholder=True,
+        )),
+        "findings-impression-contradiction": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="lung",
             laterality="right", normal=False,
-            include_comparison=True, include_interval=False,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=True, conflict=False, duplicated_text=False,
-        ),
-        "duplicated": lambda: _build_report(
+            contradictory_lat=True,
+        )),
+        "duplicated": lambda: _build_report(SyntheticReportConfig(
             modality="CT", body="liver",
             laterality="", normal=False,
-            include_comparison=True, include_interval=True,
-            critical_omitted=False, hedging=0, use_placeholder=False,
-            contradictory_lat=False, conflict=False, duplicated_text=True,
-        ),
+            include_interval=True,
+            duplicated_text=True,
+        )),
     }
 
     if scenario:

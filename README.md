@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
 
+> **Validation status:** Software functionality has been tested using synthetic data. This project has not undergone clinical validation.
+
 **A deterministic linter for radiology reports — catch contradictions, inconsistencies, and quality gaps.**
 
 `rad-report-lint` analyzes free-text radiology reports using 14 deterministic rules to identify common quality issues: contradictory laterality, normal/abnormal conflicts, modality mismatches, duplicated findings, missing comparison dates, empty impressions, recommendations without intervals, critical findings omitted from the impression, inconsistent measurements, ambiguous pronouns, excessive hedging, unexpanded abbreviations, template placeholders, and findings–impression contradictions.
